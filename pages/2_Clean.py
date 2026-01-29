@@ -269,3 +269,59 @@ if action:
 st.divider()
 st.subheader("🔍 Current Dataset Preview")
 st.dataframe(st.session_state["data"].head(10), use_container_width=True)
+
+
+st.divider()
+st.subheader("📤 Export Cleaned Dataset")
+
+df_export = st.session_state["data"]
+
+export_format = st.selectbox(
+    "Select Export Format",
+    ["CSV", "Excel", "JSON"]
+)
+
+# ---------- CSV OPTIONS ----------
+if export_format == "CSV":
+    encoding = st.selectbox(
+        "Select Encoding",
+        ["utf-8", "utf-8-sig", "latin1", "ISO-8859-1"]
+    )
+
+    csv_data = df_export.to_csv(index=False).encode(encoding)
+
+    st.download_button(
+        label="⬇️ Download CSV",
+        data=csv_data,
+        file_name="cleaned_dataset.csv",
+        mime="text/csv"
+    )
+
+# ---------- EXCEL OPTIONS ----------
+elif export_format == "Excel":
+    from io import BytesIO
+
+    excel_buffer = BytesIO()
+    df_export.to_excel(excel_buffer, index=False, engine="openpyxl")
+    excel_buffer.seek(0)
+
+    st.download_button(
+        label="⬇️ Download Excel",
+        data=excel_buffer,
+        file_name="cleaned_dataset.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+# ---------- JSON OPTIONS ----------
+elif export_format == "JSON":
+    json_data = df_export.to_json(
+        orient="records",
+        indent=2
+    )
+
+    st.download_button(
+        label="⬇️ Download JSON",
+        data=json_data,
+        file_name="cleaned_dataset.json",
+        mime="application/json"
+    )
